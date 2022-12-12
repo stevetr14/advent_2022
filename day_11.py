@@ -1,10 +1,8 @@
-import math
 import operator
 import os
 
 from pprint import pprint
 from collections import defaultdict
-from typing import List
 
 from consts import ROOT_DIR
 
@@ -30,7 +28,7 @@ if __name__ == '__main__':
     outcome_mappings = defaultdict(tuple)
 
     rounds = 0
-    MAX_ROUNDS = 20
+    MAX_ROUNDS = 10000
 
     # Initialise moneys with items
     for monkey in monkeys:
@@ -57,16 +55,23 @@ if __name__ == '__main__':
         inspect_mappings[monkey_num] = 0
         outcome_mappings[monkey_num] = (true_monkey, false_monkey)
 
+    common_denominator = 1
+    for divisor in divisible_mappings.values():
+        common_denominator = common_denominator * divisor
+
     while rounds != MAX_ROUNDS:
         for k, v in mappings.items():
             inspect_mappings[k] += len(v)
             true_k, false_k = outcome_mappings[k]
             while v:
                 item = v.pop(0)
+                t = divisible_mappings[k]
+                # PART 1
                 # new_item = math.floor(operation_mappings[k][0](item, operation_mappings[k][1]) / 3)
-                new_item = hash(math.floor(operation_mappings[k][0](item, operation_mappings[k][1])))
+                # PART 2
+                new_item = operation_mappings[k][0](item, operation_mappings[k][1]) % common_denominator
 
-                if new_item % hash(divisible_mappings[k]) == 0:
+                if new_item % divisible_mappings[k] == 0:
                     mappings[true_k].append(new_item)
                 else:
                     mappings[false_k].append(new_item)
@@ -75,24 +80,4 @@ if __name__ == '__main__':
 
     second, first = sorted(inspect_mappings.values())[-2:]
     print(second, first, second * first)
-    print(divisible_mappings)
-    # pprint(mappings)
-    # pprint(inspect_mappings)
-
-    # 0: 11 -> 3 else 2
-    # 1: 7  -> 6 else 7
-    # 2: 13 -> 3 else 5
-    # 3: 5  -> 4 else 5
-    # 4: 3  -> 1 else 7
-    # 5: 17 -> 4 else 1
-    # 6: 2  -> 2 else 0
-    # 7: 19 -> 6 else 0
-
-    # 0                             not divisible by 2, 19
-    # 1 divisible by 3              not divisible by 17
-    # 2 divisible by 2              not divisible by 11
-    # 3 divisible by 11, 13
-    # 4 divisible by 5, 17
-    # 5 divisible by                not divisible by 5, 13
-    # 6 divisible by 7, 19
-    # 7 divisible by                not divisible by 3, 7
+    pprint(inspect_mappings)
